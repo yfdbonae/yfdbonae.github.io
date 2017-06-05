@@ -17,10 +17,10 @@ MyTime.prototype = {
         var s = Math.floor(date % 60);
         this.ctx.save();
 
-        var text = '你已经坚持了' + h + '小时' + m + '分钟' + s + '秒';
+        var text = '是男人你就坚持一分钟！你已经坚持了' + h + '小时' + m + '分钟' + s + '秒';
         this.ctx.font = '30px 微软雅黑';
         this.ctx.fillStyle = 'pink';                                                        
-        if (s == 1) {
+        if (m == 1) {
             text += ' 恭喜你！！通关了';
             this.ctx.fillText(text, this.x - this.ctx.measureText(text).width, this.y);
             return isRunning = false;
