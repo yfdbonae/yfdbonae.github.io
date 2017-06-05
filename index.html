@@ -1,3 +1,219 @@
-你看看啊。这是什么鬼东西
+<!DOCTYPE html>
+<html lang="en">
 
-我又回来 了
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <canvas width='800' height='600' id="mycanvas"></canvas>
+    <script src='sky.js'></script>
+    <script src='bird.js'></script>
+    <script src='Land.js'></script>
+    <script src='Pipe.js'></script>
+    <script src='time.js'></script>
+    <script>
+        var canvas = document.querySelector('#mycanvas');
+        var ctx = canvas.getContext('2d');
+        var imgNames = ['birds.png', 'land.png', 'sky.png','pipe1.png','pipe2.png'];
+        // 创建一个数组，存要绘制的所有对象，顺序要搞对
+        var rule = [];
+        // 用于判断动画是否继续
+        var isRunning = true;
+        LoadimgNames(imgNames, function (imgs) {
+
+            // var birdimg = imgs['birds.png'];
+            // var skyimg = imgs['sky.png'];
+            // var picx = birdimg.width / 3;
+            // var picy = birdimg.height;
+            // var index = 0;
+            // var x = 100;
+            // var y = 100;
+            // var a = 0.0002;
+            // var starTime = new Date();
+            // var v = 0;
+            // var maxV = 0.5;
+            // var maxAngle = 90;
+            // var sky1 = new Sky({
+            //     ctx: ctx,
+            //     img: imgs['sky.png'],
+            //     x: 0,
+            // })
+            // var sky2 = new Sky({
+            //     ctx: ctx,
+            //     img: imgs['sky.png'],
+            //     x: imgs['sky.png'].width,
+            // })
+            // 绘制天空
+            for (var i = 0; i < 2; i++) {
+                rule.push(new Sky({
+                    ctx: ctx,
+                    img: imgs['sky.png'],
+                    x: imgs['sky.png'].width * i
+                }))
+            }
+            // 绘制管道
+            for (var i = 0; i < 6; i++) {
+                rule.push(new Pipe({
+                    ctx: ctx,
+                    topImg: imgs['pipe2.png'],
+                    bottomImg: imgs['pipe1.png'],
+                    x: 300 * i
+                }))
+            }
+            // 绘制陆地
+            for (var i = 0; i < 4; i++) {
+                rule.push(new Land({
+                    ctx: ctx,
+                    img: imgs['land.png'],
+                    x: imgs['land.png'].width * i,
+                    y: canvas.height - imgs['land.png'].height
+                }))
+            }
+            // 时间
+            
+            rule.push(new MyTime({
+                ctx:ctx,
+                x:canvas.width,
+                y:50 
+            }));
+            // 小鸟绘制
+            var bird = new Bird({
+                ctx: ctx,
+                img: imgs['birds.png'],
+                x: 100,
+                y: 100
+            });
+            // 最后才放入数组
+            rule.push(bird);
+            // x=V0t+1/2at² V=V0+at：
+            function render() {
+                //  清除
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                // 开新路径
+                 ctx.beginPath();
+                 
+                // 绘制天空
+
+                rule.forEach(function (v) {
+                    v.draw();
+                })
+                // 绘制小鸟
+                // bird.draw();
+
+                // var lastTime = new Date();
+                // var dTime = lastTime - starTime;
+                // starTime = lastTime;
+                // // console.log(dTime);
+
+                // var s = v * dTime + a * dTime * dTime / 2;
+                // v = v + a * dTime;
+                // y += s;
+                // var angle = maxAngle / maxV * v;
+                // // ctx.drawImage(skyimg,0,0,canvas.width,canvas.height);
+                // ctx.save();
+                // ctx.translate(x + picx / 2, y + picy / 2);
+                // // console.log(angle);
+                // ctx.rotate(changeAngle(angle));
+                // ctx.drawImage(birdimg, index * picx, 0, picx, picy, -picx / 2, -picy / 2, picx, picy);
+                // ctx.restore();
+                // index++;
+
+                // if (index == 3) {
+                //     index = 0;
+                // }
+  
+                // 判断管道碰撞
+                if(ctx.isPointInPath(bird.x+bird.picx/2,bird.y+bird.picy/2)){
+                    isRunning = false;
+                }
+                // 判断上天入地
+                if (bird.y < -8 || bird.y > canvas.height - imgs['land.png'].height - imgs['birds.png'].height +
+                    5) {
+                    isRunning = false;
+                }
+                if (isRunning) {
+
+                    requestAnimationFrame(render);
+                }
+                document.onmousedown = function () {
+                    bird.v = -bird.maxV / 3;
+                }
+            }
+            render();
+        })
+        // var img = new Image();
+        // img.src = 'imgs/birds.png';
+
+        // img.onload = function () {
+
+        //     var picx = img.width / 3;
+        //     var picy = img.height;
+        //     var index = 0;
+        //     var x = 100;
+        //     var y = 100;
+        //     var a = 0.0002;
+        //     var starTime = new Date();
+        //     var v = 0;
+        //     var maxV = 0.5;
+        //     var maxAngle = 90;
+
+        //     // x=V0t+1/2at² V=V0+at：
+        //     function render() {
+        //         var lastTime = new Date();
+        //         var dTime = lastTime - starTime;
+        //         starTime = lastTime;
+        //         // console.log(dTime);
+        //         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        //         var s = v * dTime + a * dTime * dTime / 2;
+        //         v = v + a * dTime;
+        //         y += s;
+        //         var angle = maxAngle / maxV * v;
+        //         ctx.save();
+        //         ctx.translate(x + picx / 2, y + picy / 2);
+        //         // console.log(angle);
+        //         ctx.rotate(changeAngle(angle));
+        //         ctx.drawImage(img, index * picx, 0, picx, picy, -picx / 2, -picy / 2, picx, picy);
+        //         ctx.restore();
+        //         index++;
+
+        //         if (index == 3) {
+        //             index = 0;
+        //         }
+
+        //         requestAnimationFrame(render);
+        //         document.onmousedown = function () {
+        //             v = -maxV / 3;
+        //         }
+        //     }
+        //     render();
+        // }
+        //   转角度的函数
+        function changeAngle(angle) {
+            return Math.PI / 180 * angle;
+        }
+        // 多张图片加载的函数
+        function LoadimgNames(imgnames, callback) {
+            var conut = 0;
+            var imgs = {};
+            for (var i = 0; i < imgnames.length; i++) {
+                var img = new Image();
+                var imgName = imgnames[i];
+                img.src = 'imgs/' + imgName;
+                imgs[imgName] = img;
+                img.onload = function () {
+                    conut++;
+                    if (conut == imgnames.length) {
+                        callback(imgs);
+                    }
+
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
